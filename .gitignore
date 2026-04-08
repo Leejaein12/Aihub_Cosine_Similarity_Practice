@@ -1,0 +1,4 @@
+data/embeddings.npy
+data/법령_QA/
+data/판결문_QA/
+data/판결문_SUM/
