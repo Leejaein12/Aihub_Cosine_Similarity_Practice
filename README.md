@@ -2,19 +2,19 @@
 
 ## 라이브러리 불러오기
 
-flask → 웹 서버
+- flask → 웹 서버
 
-pandas → CSV 읽기
+- pandas → CSV 읽기
 
-numpy → 행렬 연산 (코사인 유사도에 사용)
+- numpy → 행렬 연산 (코사인 유사도에 사용)
 
-gdown → 구글 드라이브에서 파일 다운로드
+- gdown → 구글 드라이브에서 파일 다운로드
 
 
 ### 서버 시작할 때 드라이브에서 다운로드
-EMBEDDINGS_ID = "11FDE74NC8wlpzUW-2qex-A4_nuwyEqZL"
+- EMBEDDINGS_ID = "11FDE74NC8wlpzUW-2qex-A4_nuwyEqZL"
 
-CSV_ID = "1GalqZwUXTVSvAlRBaIzscLB3aBcHC-07"
+- CSV_ID = "1GalqZwUXTVSvAlRBaIzscLB3aBcHC-07"
 
 ### 파일이 없을 때만 다운로드하고 이미 있으면 스킵
 def download_if_missing():
@@ -41,11 +41,11 @@ embeddings = np.load(EMBEDDINGS_PATH)
 
 
 ### 임베딩이 무엇인가?
-    "보안관찰처분대상자의 정의는?" 
+- "보안관찰처분대상자의 정의는?" 
 
-→ [0.12, -0.34, 0.87, ...] ← 768개 숫자로 변환
+- → [0.12, -0.34, 0.87, ...] ← 768개 숫자로 변환
 
-문장의 의미를 숫자 벡터로 표현한 것. 의미가 비슷한 문장일수록 벡터 방향이 비슷함
+- 문장의 의미를 숫자 벡터로 표현한 것. 의미가 비슷한 문장일수록 벡터 방향이 비슷함
 
 ### 오답 추출 함수. 같은 카테고리(법령/판결문/요약) 안에서만 오답 뽑음. 다른 카테고리 섞이면 이상한 보기 나오니까
     def get_wrong_answers(correct_idx, category, n=3):
@@ -58,19 +58,19 @@ embeddings = np.load(EMBEDDINGS_PATH)
 
     sims = np.dot(embeddings[same_cat], query.T).flatten()
 
-embeddings[correct_idx] → 정답 문장의 벡터 (768차원)
+- embeddings[correct_idx] → 정답 문장의 벡터 (768차원)
 
-reshape(1, -1) → 행렬 연산을 위해 shape 변환 (768,) → (1, 768)
+- reshape(1, -1) → 행렬 연산을 위해 shape 변환 (768,) → (1, 768)
 
-np.dot(embeddings[same_cat], query.T) → 내적(dot product) 계산
+- np.dot(embeddings[same_cat], query.T) → 내적(dot product) 계산
 
 ### 코사인 유사도 원리: cos(θ) = A·B / (|A| × |B|)
 
-두 벡터의 내적을 각 벡터의 크기로 나눈 값. 근데 embed.py에서 이미 L2 정규화를 해서 모든 벡터의 크기가 1임. 그래서: cos(θ) = A·B / (1 × 1) = A·B
+- 두 벡터의 내적을 각 벡터의 크기로 나눈 값. 근데 embed.py에서 이미 L2 정규화를 해서 모든 벡터의 크기가 1임. 그래서: cos(θ) = A·B / (1 × 1) = A·B
 
-그냥 내적만 하면 코사인 유사도가 나옴
+- 그냥 내적만 하면 코사인 유사도가 나옴
 
-결과 sims는 각 문장과 정답 문장의 유사도 점수 배열 -1 ~ 1 사이 값
+- 결과 sims는 각 문장과 정답 문장의 유사도 점수 배열 -1 ~ 1 사이 값
 
 
 ### 정답 자체를 오답으로 뽑으면 안 되니까 정답의 유사도를 -1로 설정해서 제외
@@ -86,11 +86,11 @@ if correct_idx in same_cat:
 
     candidates.sort(key=lambda x: x[1], reverse=True)
 
-0.8 이상 → 너무 비슷 → 정답이랑 헷갈려서 오답 판별 어려움
+- 0.8 이상 → 너무 비슷 → 정답이랑 헷갈려서 오답 판별 어려움
 
-0.3 이하 → 너무 다름 → 보기가 엉뚱해짐
+- 0.3 이하 → 너무 다름 → 보기가 엉뚱해짐
 
-0.3~0.8 → 적당히 비슷 → 헷갈리는 오답
+- 0.3~0.8 → 적당히 비슷 → 헷갈리는 오답
 
 ### 후보가 3개 미만이면 그냥 유사도 높은 순으로 뽑고, 충분하면 상위 20개 중에서 랜덤으로 3개 선택. 매번 같은 보기 나오는 거 방지
 if len(candidates) < n:
@@ -126,19 +126,19 @@ def get_quiz():
 
 
 ## 전체 흐름 요약
-서버 시작
+- 서버 시작
 
-→ 구글 드라이브에서 CSV + embeddings.npy 다운로드
+- → 구글 드라이브에서 CSV + embeddings.npy 다운로드
 
-→ 메모리에 로드
+- → 메모리에 로드
 
-사용자 요청
+- 사용자 요청
 
-→ 랜덤 문제 선택
+- → 랜덤 문제 선택
 
-→ 정답 벡터와 다른 문장들 코사인 유사도 계산
+- → 정답 벡터와 다른 문장들 코사인 유사도 계산
 
-→ 적당히 비슷한 것 3개 오답으로 선택
+- → 적당히 비슷한 것 3개 오답으로 선택
 
-→ 보기 4개 섞어서 반환
+- → 보기 4개 섞어서 반환
 
